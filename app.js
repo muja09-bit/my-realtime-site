@@ -12,7 +12,7 @@ const firebaseConfig = {
   authDomain: "my-realtime-site.firebaseapp.com",
   databaseURL: "https://my-realtime-site-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "my-realtime-site",
-  storageBucket: "my-realtime-site.firebasestorage.app",
+  storageBucket: "my-realtime-site.appspot.com",
   messagingSenderId: "824570401818",
   appId: "1:824570401818:web:917f7ec3bc0067c971ada3"
 };
@@ -50,6 +50,7 @@ form.addEventListener('submit', (e) => {
   });
   input.value = '';
 });
+
 
 
 
