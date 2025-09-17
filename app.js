@@ -10,6 +10,7 @@ import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/fi
 const firebaseConfig = {
   apiKey: "AIzaSyB2vduLYT5w_SVMHo6KJ0CVJWWexICip_4",
   authDomain: "my-realtime-site.firebaseapp.com",
+  databaseURL: "https://my-realtime-site-default-rtdb.asia-southeast1.firebasedatabase.com"
   projectId: "my-realtime-site",
   storageBucket: "my-realtime-site.firebasestorage.app",
   messagingSenderId: "824570401818",
@@ -49,4 +50,5 @@ form.addEventListener('submit', (e) => {
   });
   input.value = '';
 });
+
 
