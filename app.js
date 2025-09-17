@@ -1,16 +1,11 @@
 // app.js (type="module")
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-/*
-  Replace the object below (firebaseConfig) with the config you get
-  from the Firebase console after you add a Web app to your Firebase project.
-  Make sure it includes the databaseURL.
-*/
+/* Firebase config */
 const firebaseConfig = {
   apiKey: "AIzaSyB2vduLYT5w_SVMHo6KJ0CVJWWexICip_4",
   authDomain: "my-realtime-site.firebaseapp.com",
-  databaseURL: "https://my-realtime-site-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "my-realtime-site",
   storageBucket: "my-realtime-site.appspot.com",
   messagingSenderId: "824570401818",
@@ -18,38 +13,94 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
-const messagesRef = ref(db, 'messages'); // location in DB we'll use
+const db  = getFirestore(app);
 
-// UI refs
-const messagesEl = document.getElementById('messages');
-const form = document.getElementById('msgForm');
+/* UI refs */
+const messagesEl = document.getElementById('messages'); // boleh rename ikut lab/equipment
+const form = document.getElementById('msgForm');       // form untuk tambah maintenance / notes
 const input = document.getElementById('msgInput');
 
-// When a child is added under /messages, show it.
-// Note: onChildAdded will fire once per existing child on initial load,
-// then again for each new child added (so you see history + new items).
-onChildAdded(messagesRef, (snap) => {
-  const data = snap.val();
-  const div = document.createElement('div');
-  div.className = 'msg';
-  div.textContent = `${data.when} — ${data.text}`;
-  messagesEl.appendChild(div);
-  // optional: keep newest visible
+/* Reference ke koleksi messages (atau maintenance_logs) */
+const messagesCol = collection(db, "messages"); // nanti boleh tukar ke: labs/{labId}/equipment/{eqId}/maintenance_logs
+
+/* Listen real-time */
+onSnapshot(messagesCol, (snapshot) => {
+  messagesEl.innerHTML = ''; // clear list
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const div = document.createElement('div');
+    div.className = 'msg';
+    div.textContent = `${data.when} — ${data.text}`;
+    messagesEl.appendChild(div);
+  });
   messagesEl.scrollTop = messagesEl.scrollHeight;
 });
 
-// Send message (push creates a unique key)
-form.addEventListener('submit', (e) => {
+/* Submit form */
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const text = input.value.trim();
   if (!text) return;
-  push(messagesRef, {
+
+  await addDoc(messagesCol, {
     text,
     when: new Date().toLocaleTimeString()
   });
+
   input.value = '';
 });
+
+/* --- Contoh fungsi CRUD tambahan untuk Firestore --- */
+
+// Tambah lab baru
+async function addLab(labId, name, location) {
+  await setDoc(doc(db, "labs", labId), { name, location });
+}
+
+// Tambah equipment
+async function addEquipment(labId, eqId, name, quantity, status) {
+  await setDoc(doc(db, "labs", labId, "equipment", eqId), {
+    name,
+    quantity,
+    status,
+    last_maintenance: new Date()
+  });
+}
+
+// Tambah maintenance log
+async function addMaintenanceLog(labId, eqId, staffId, notes) {
+  const logRef = collection(db, "labs", labId, "equipment", eqId, "maintenance_logs");
+  await addDoc(logRef, {
+    date: new Date(),
+    staff: staffId,
+    notes
+  });
+
+  // update last maintenance
+  const eqRef = doc(db, "labs", labId, "equipment", eqId);
+  await updateDoc(eqRef, { last_maintenance: new Date() });
+}
+
+// Baca semua lab
+async function getAllLabs() {
+  const labsSnapshot = await getDocs(collection(db, "labs"));
+  labsSnapshot.forEach(doc => console.log(doc.id, doc.data()));
+}
+
+// Update equipment status / quantity
+async function updateEquipment(labId, eqId, status, quantity) {
+  await updateDoc(doc(db, "labs", labId, "equipment", eqId), { status, quantity });
+}
+
+// Delete equipment
+async function deleteEquipment(labId, eqId) {
+  await deleteDoc(doc(db, "labs", labId, "equipment", eqId));
+}
+
+// Delete lab
+async function deleteLab(labId) {
+  await deleteDoc(doc(db, "labs", labId));
+}
 
 
 
