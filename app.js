@@ -8,11 +8,12 @@ import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/fi
   Make sure it includes the databaseURL.
 */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_DATABASE_NAME.REGION.firebasedatabase.app",
-  projectId: "YOUR_PROJECT",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyB2vduLYT5w_SVMHo6KJ0CVJWWexICip_4",
+  authDomain: "my-realtime-site.firebaseapp.com",
+  projectId: "my-realtime-site",
+  storageBucket: "my-realtime-site.firebasestorage.app",
+  messagingSenderId: "824570401818",
+  appId: "1:824570401818:web:917f7ec3bc0067c971ada3"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -48,3 +49,4 @@ form.addEventListener('submit', (e) => {
   });
   input.value = '';
 });
+
